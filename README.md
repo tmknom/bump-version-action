@@ -1,36 +1,46 @@
-# template-composite-action
+# bump-version-action
 
-Template repository for Composite Action.
+Bump up the version according to semantic versioning.
 
 <!-- actdocs start -->
 
 ## Description
 
-Template repository for creating Composite Action with GitHub Actions.
+Specify the version level to increment and calculate the next version based on semantic versioning.
+Choose to bump either the major, minor, or patch version.
+
+If the current version is not provided, it will be automatically fetched from the latest Git tag.
 
 ## Usage
 
-Write usage for your Composite Action.
-
 ```yaml
   steps:
-    - name: Template
-      uses: tmknom/template-composite-action@v0
+    - name: Bump Version
+      uses: tmknom/bump-version-action@v0
+      with:
+        bump-level: minor
 ```
 
 ## Inputs
 
-N/A
+| Name | Description | Default | Required |
+| :--- | :---------- | :------ | :------: |
+| bump-level | Determines which part of the version to increment [patch/minor/major] | n/a | yes |
+| current-version | The current version. | n/a | no |
 
 ## Outputs
 
-N/A
+| Name | Description |
+| :--- | :---------- |
+| next-version | The next version. |
 
 <!-- actdocs end -->
 
 ## Permissions
 
-N/A
+| Scope    | Access |
+| :------- | :----- |
+| contents | read   |
 
 ## FAQ
 
@@ -48,4 +58,4 @@ See [GitHub Releases][releases].
 
 Apache 2 Licensed. See [LICENSE](LICENSE) for full details.
 
-[releases]: https://github.com/tmknom/template-composite-action/releases
+[releases]: https://github.com/tmknom/bump-version-action/releases

@@ -1,23 +1,90 @@
-name: Rename me
+name: Bump Version
 description: |
-  Template repository for creating Composite Action with GitHub Actions.
+  Specify the version level to increment and calculate the next version based on semantic versioning.
+  Choose to bump either the major, minor, or patch version.
+
+  If the current version is not provided, it will be automatically fetched from the latest Git tag.
 
   ## Usage
 
-  Write usage for your Composite Action.
-
   ```yaml
     steps:
-      - name: Template
-        uses: tmknom/template-composite-action@v0
+      - name: Bump Version
+        uses: tmknom/bump-version-action@v0
+        with:
+          bump-level: minor
   ```
+
+inputs:
+  bump-level:
+    required: true
+    description: Determines which part of the version to increment [patch/minor/major]
+  current-version:
+    required: false
+    description: The current version.
+
+outputs:
+  next-version:
+    value: ${{ steps.bump.outputs.version }}
+    description: The next version.
 
 runs:
   using: composite
 
   steps:
-    - name: Run
-      shell: bash
+    - name: Git tag version
+      id: tag
+      if: ${{ inputs.current-version != '' }}
       run: |
         set -x
-        echo "Write steps"
+        git fetch --tag
+        tag="$(git tag --sort=-v:refname | head -1)"
+        echo "version=${tag}" >> "${GITHUB_OUTPUT}"
+      shell: bash
+
+    - name: Current version
+      id: current
+      env:
+        CURRENT_VERSION: ${{ steps.tag.outputs.version || inputs.current-version }}
+      run: |
+        set -x
+        current="${CURRENT_VERSION}"
+        if [[ "${current}" == "" ]]; then
+          current="v0.0.0"
+        fi
+        echo "version=${current}" >> "${GITHUB_OUTPUT}"
+      shell: bash
+
+    - name: Bump version
+      id: bump
+      env:
+        CURRENT_VERSION: ${{ steps.current.outputs.version }}
+        BUMP_LEVEL: ${{ inputs.bump-level }}
+      run: |
+        set -x
+        IFS='.' read -ra versions <<<"${CURRENT_VERSION#v}"
+        major="${versions[0]}"
+        minor="${versions[1]}"
+        patch="${versions[2]}"
+
+        case "${BUMP_LEVEL}" in
+          major)
+            major="$((major + 1))"
+            minor=0
+            patch=0
+            ;;
+          minor)
+            minor="$((minor + 1))"
+            patch=0
+            ;;
+          patch)
+            patch="$((patch + 1))"
+            ;;
+          *)
+            printf "invalid argument: %s" "${BUMP_LEVEL}" >&2
+            exit 1
+            ;;
+        esac
+
+        echo "version=v${major}.${minor}.${patch}" >> "${GITHUB_OUTPUT}"
+      shell: bash
