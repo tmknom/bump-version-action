@@ -16,7 +16,45 @@ defaults:
 
 jobs:
   test:
-    name: Test
+    name: ${{ matrix.bump-level }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - bump-level: patch
+            current-version: v1.2.3
+            expected: v1.2.4
+          - bump-level: minor
+            current-version: v1.2.3
+            expected: v1.3.0
+          - bump-level: major
+            current-version: v1.2.3
+            expected: v2.0.0
+    steps:
+      - name: Checkout
+        uses: tmknom/checkout-action@v1
+
+      - name: Exercise
+        id: exercise
+        uses: ./
+        with:
+          bump-level: ${{ matrix.bump-level }}
+          current-version: ${{ matrix.current-version }}
+
+      - name: Verify
+        env:
+          ACTUAL: ${{ steps.exercise.outputs.next-version }}
+          EXPECTED: ${{ matrix.expected }}
+        run: |
+          set -x
+          test "${ACTUAL}" = "${EXPECTED}"
+
+  test-git-tag:
+    name: git tag
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -25,24 +63,15 @@ jobs:
       - name: Checkout
         uses: tmknom/checkout-action@v1
 
-      - name: Setup
-        run: |
-          set -x
-          echo "Setup"
-
       - name: Exercise
         id: exercise
         uses: ./
+        with:
+          bump-level: major
 
       - name: Verify
         env:
-          OUTCOME: ${{ steps.exercise.outcome }}
+          ACTUAL: ${{ steps.exercise.outputs.next-version }}
         run: |
           set -x
-          test "${OUTCOME}" = "success"
-
-      - name: Teardown
-        if: ${{ always() }}
-        run: |
-          set -x
-          echo "Teardown"
+          test "${ACTUAL}" = "v1.0.0"
