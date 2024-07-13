@@ -32,7 +32,7 @@ If the current version is not provided, it will be automatically fetched from th
 
 | Name | Description |
 | :--- | :---------- |
-| next-version | The next version. |
+| version | The bumped version. |
 
 <!-- actdocs end -->
 

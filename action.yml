@@ -24,9 +24,9 @@ inputs:
     description: The current version.
 
 outputs:
-  next-version:
+  version:
     value: ${{ steps.bump.outputs.version }}
-    description: The next version.
+    description: The bumped version.
 
 runs:
   using: composite
