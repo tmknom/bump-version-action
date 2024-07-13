@@ -34,7 +34,7 @@ runs:
   steps:
     - name: Git tag version
       id: tag
-      if: ${{ inputs.current-version != '' }}
+      if: ${{ inputs.current-version == '' }}
       run: |
         set -x
         git fetch --tag
