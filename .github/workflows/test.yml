@@ -47,7 +47,7 @@ jobs:
 
       - name: Verify
         env:
-          ACTUAL: ${{ steps.exercise.outputs.next-version }}
+          ACTUAL: ${{ steps.exercise.outputs.version }}
           EXPECTED: ${{ matrix.expected }}
         run: |
           set -x
@@ -71,7 +71,7 @@ jobs:
 
       - name: Verify
         env:
-          ACTUAL: ${{ steps.exercise.outputs.next-version }}
+          ACTUAL: ${{ steps.exercise.outputs.version }}
         run: |
           set -x
           test "${ACTUAL}" = "v1.0.0"
