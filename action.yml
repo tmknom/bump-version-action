@@ -36,10 +36,12 @@ runs:
       id: tag
       if: ${{ inputs.current-version == '' }}
       run: |
+        echo "::group::Git tag version"
         set -x
         git fetch --tag
         tag="$(git tag --sort=-v:refname | head -1)"
         echo "version=${tag}" >> "${GITHUB_OUTPUT}"
+        echo "::endgroup::"
       shell: bash
 
     - name: Current version
@@ -47,12 +49,14 @@ runs:
       env:
         CURRENT_VERSION: ${{ steps.tag.outputs.version || inputs.current-version }}
       run: |
+        echo "::group::Current version"
         set -x
         current="${CURRENT_VERSION}"
         if [[ "${current}" == "" ]]; then
           current="v0.0.0"
         fi
         echo "version=${current}" >> "${GITHUB_OUTPUT}"
+        echo "::endgroup::"
       shell: bash
 
     - name: Bump version
@@ -61,6 +65,7 @@ runs:
         CURRENT_VERSION: ${{ steps.current.outputs.version }}
         BUMP_LEVEL: ${{ inputs.bump-level }}
       run: |
+        echo "::group::Bump version"
         set -x
         IFS='.' read -ra versions <<<"${CURRENT_VERSION#v}"
         major="${versions[0]}"
@@ -87,4 +92,5 @@ runs:
         esac
 
         echo "version=v${major}.${minor}.${patch}" >> "${GITHUB_OUTPUT}"
+        echo "::endgroup::"
       shell: bash
